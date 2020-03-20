@@ -1,0 +1,9 @@
+{
+    "version": 1,
+    "env": {
+        "SID": "@sid",
+        "AUTH": "@auth",
+        "BENJAMIN_NUMBER": "@benjamin_number",
+        "ZACHARY_NUMBER": "@zachary_number"
+    }
+}
