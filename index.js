@@ -43,6 +43,10 @@ const people = [
   {
     name: 'Benjamin',
     number: process.env.BENJAMIN_NUMBER
+  },
+  {
+    name: 'Scott',
+    number: process.env.SCOTT_NUMBER,
   }
 ];
 
