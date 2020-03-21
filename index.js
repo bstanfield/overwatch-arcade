@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 const express = require('express');
 const R = require('ramda');
 const cron = require('node-cron');
@@ -61,6 +62,7 @@ const getArcadeTilesAndSendTexts = async () => {
   const arcade = await sendAndParseReq(setParams('https://overwatcharcade.today/api', {
     url: '/today',
   }));
+  
   const createdAt = arcade[0].created_at;
   const tilesStr = R.pipe(
     R.props(['tile_1', 'tile_2', 'tile_3', 'tile_4', 'tile_5', 'tile_6', 'tile_7']),
@@ -71,11 +73,11 @@ const getArcadeTilesAndSendTexts = async () => {
     (name) => `Hiya ${name}. These are the arcade games in Overwatch today (${new Date(createdAt).toLocaleDateString()}): \n\n${tilesStr}`
   );
 
-  const twilioPromises = R.map(sendText(message), people);
-  await Promise.all(twilioPromises);
+  // const twilioPromises = R.map(sendText(message), people);
+  // await Promise.all(twilioPromises);
 };
 
-cron.schedule('0 8 * * *', async () => { // every day at 8 AM
+cron.schedule('* * * * *', async () => { // every minute
   await getArcadeTilesAndSendTexts();
 });
 
