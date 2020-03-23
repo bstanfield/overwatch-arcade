@@ -61,6 +61,7 @@ const getArcadeTilesAndSendTexts = async () => {
   const arcade = await sendAndParseReq(setParams('https://overwatcharcade.today/api', {
     url: '/today',
   }));
+  console.log('results from arcade: ', arcade);
   const createdAt = arcade[0].created_at;
   const tilesStr = R.pipe(
     R.props(['tile_1', 'tile_2', 'tile_3', 'tile_4', 'tile_5', 'tile_6', 'tile_7']),
@@ -72,12 +73,10 @@ const getArcadeTilesAndSendTexts = async () => {
   );
 
   const twilioPromises = R.map(sendText(message), people);
+  console.log('promises: ', twilioPromises);
   await Promise.all(twilioPromises);
+  return;
 };
-
-cron.schedule('* * * * *', async () => {
-  console.log('Testing logs every 1 min...');
-});
 
 cron.schedule('0 8 * * *', async () => { // every day at 8 AM
   console.log('Running cron job at 8 AM');
@@ -85,12 +84,14 @@ cron.schedule('0 8 * * *', async () => { // every day at 8 AM
 });
 
 app.get('/api/', async (req, res) => {
-  console.log('/api hit');
+  console.log('Expediting text...');
+  await getArcadeTilesAndSendTexts();
   res
     .status(200)
     .send(
-      'Next cronjob at 8 AM.'
+      'Overriding and sending texts now. Next cronjob at 8 AM.'
     )
+  return;
 }
 );
 
