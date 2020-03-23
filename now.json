@@ -4,6 +4,7 @@
         "SID": "@sid",
         "AUTH": "@auth",
         "BENJAMIN_NUMBER": "@benjamin_number",
-        "ZACHARY_NUMBER": "@zachary_number"
+        "ZACHARY_NUMBER": "@zachary_number",
+        "SCOTT_NUMBER": "@scott_number"
     }
 }

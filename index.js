@@ -75,11 +75,17 @@ const getArcadeTilesAndSendTexts = async () => {
   await Promise.all(twilioPromises);
 };
 
+cron.schedule('* * * * *', async () => {
+  console.log('Testing logs every 1 min...');
+});
+
 cron.schedule('0 8 * * *', async () => { // every day at 8 AM
+  console.log('Running cron job at 8 AM');
   await getArcadeTilesAndSendTexts();
 });
 
 app.get('/api/', async (req, res) => {
+  console.log('/api hit');
   res
     .status(200)
     .send(
