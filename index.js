@@ -1,13 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const R = require('ramda');
-const cron = require('node-cron');
 const request = require('request-promise-native');
-
-// twilio
-const accountSid = process.env.SID;
-const authToken = process.env.AUTH;
-const client = require('twilio')(accountSid, authToken);
 
 const app = express();
 const port = 4444;
@@ -35,29 +29,7 @@ const sendAndParseReq = async (params) => {
   return parsedResponse;
 };
 
-const people = [
-  {
-    name: 'Zachary',
-    number: process.env.ZACHARY_NUMBER
-  },
-  {
-    name: 'Benjamin',
-    number: process.env.BENJAMIN_NUMBER
-  },
-  {
-    name: 'Scott',
-    number: process.env.SCOTT_NUMBER,
-  }
-];
-
-const sendText = R.curry(async (message, person) => client.messages
-  .create({
-    body: message(person.name),
-    from: '+15109747106',
-    to: person.number,
-  }));
-
-const getArcadeTilesAndSendTexts = async () => {
+const getArcadeTilesAndReturnMessage = async () => {
   const arcade = await sendAndParseReq(setParams('https://overwatcharcade.today/api', {
     url: '/today',
   }));
@@ -68,31 +40,18 @@ const getArcadeTilesAndSendTexts = async () => {
     R.map(tile => `• ${tile.name} (${tile.players}) \n`),
     R.reduce((acc, newVal) => R.concat(newVal, acc), ''),
   )(arcade[0]);
-  const message = R.curry(
-    (name) => `Hiya ${name}. These are the arcade games in Overwatch today (${new Date(createdAt).toLocaleDateString()}): \n\n${tilesStr}`
-  );
-
-  const twilioPromises = R.map(sendText(message), people);
-  console.log('promises: ', twilioPromises);
-  await Promise.all(twilioPromises);
-  return;
+  const message = `Hiya! These are the arcade games in Overwatch today (${new Date(createdAt).toLocaleDateString()}): \n\n${tilesStr}`;
+  return message;
 };
 
-cron.schedule('0 8 * * *', async () => { // every day at 8 AM
-  console.log('Running cron job at 8 AM');
-  await getArcadeTilesAndSendTexts();
-});
+app.get('/zap', async (req, res) => {
+  console.log('Someone zapped me!');
+  const message = await getArcadeTilesAndReturnMessage();
 
-app.get('/api/', async (req, res) => {
-  console.log('Expediting text...');
-  await getArcadeTilesAndSendTexts();
-  res
-    .status(200)
-    .send(
-      'Overriding and sending texts now. Next cronjob at 8 AM.'
-    )
+  res.status(200).send({
+    message,
+  });
   return;
-}
-);
+});
 
 app.listen(port, () => console.log(`Listening on port ${port}!`));
